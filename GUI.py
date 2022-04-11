@@ -25,7 +25,7 @@ def create_1():
         messagebox.showinfo("Решение уравнений 1 степени", text)
         
     # exit button
-    exit_button = ttk.Button(newWindow_1, text='Выход', command=lambda: newWindow_1.quit())
+    exit_button = ttk.Button(newWindow_1, text='Выход', command=newWindow_1.quit)
     exit_button.pack(ipadx=2, ipady=2, fill='x',side='bottom')
     
     # spinboxs
@@ -79,7 +79,7 @@ def create_2():
             messagebox.showinfo("Решение уравнений 2 степени", "У этого уравнения два комплексных корня:" + text)
 
     # exit button
-    exit_button = ttk.Button(newWindow_2, text='Выход', command=lambda: newWindow_2.quit())
+    exit_button = ttk.Button(newWindow_2, text='Выход', command=newWindow_2.quit)
     exit_button.pack(ipadx=2, ipady=2, fill='x',side='bottom')
 
     # spinboxs
@@ -138,7 +138,7 @@ def create_3():
         messagebox.showinfo("Решение уравнений 3 степени", text)
 
     # exit button
-    exit_button = ttk.Button(newWindow_3, text='Выход', command=lambda: newWindow_3.quit())
+    exit_button = ttk.Button(newWindow_3, text='Выход', command=newWindow_3.quit)
     exit_button.pack(ipadx=2, ipady=2, fill='x',side='bottom')
 
     # spinboxs
@@ -218,7 +218,7 @@ def create_4():
             messagebox.showinfo("Решение уравнений 4 степени", text)
 
     # exit button
-    exit_button = ttk.Button(newWindow_4, text='Выход', command=lambda: newWindow_4.quit())
+    exit_button = ttk.Button(newWindow_4, text='Выход', command=newWindow_4.quit)
     exit_button.pack(ipadx=2, ipady=2, fill='x',side='bottom')
 
     # spinboxs
@@ -268,7 +268,7 @@ root.resizable(False, False)
 root.title('Решение уравнений') 
 
 # exit button
-exit_button = ttk.Button(root, text='Выход', command=lambda: root.quit())
+exit_button = ttk.Button(root, text='Выход', command=root.quit)
 exit_button.pack(ipadx=2, ipady=2, fill='x',side='bottom')
 
 # buttons
