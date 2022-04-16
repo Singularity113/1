@@ -2,9 +2,13 @@ from math import sqrt
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import webbrowser
 
 # root window
 root = tk.Tk()
+
+def exploer():
+    webbrowser.open('https://rsmu.ru/fileadmin/templates/DOC/Faculties/PF/Phys-mat/akimov_kompl_chisla.pdf')
 
 # create new windows
 def create_1():
@@ -18,7 +22,7 @@ def create_1():
         b = current_value_2.get()
         if a == 0:
             messagebox.showerror("Решение уравнений 1 степени", "Коэффициент при x не может быть равен 0.")
-        x = -b / a
+        x = -b/a
         if x == 0:
             x = abs(x)
         text = "X: %s" % round(x,2)
@@ -62,19 +66,19 @@ def create_2():
         c = current_value_3.get()
         if a == 0:
             messagebox.showerror("Решение уравнений 2 степени", "Коэффициент при x в степени 2 не может быть равен 0.")
-        D = b ** 2 - 4 * a * c
+        D = b**2 - 4*a*c
         if D > 0:
-            x1 = (-b + sqrt(D)) / (2 * a)
-            x2 = (-b - sqrt(D)) / (2 * a)
+            x1 = (-b + sqrt(D))/(2*a)
+            x2 = (-b - sqrt(D))/(2*a)
             text="X1: %s \n X2: %s \n" % (round(x1,2), round(x2,2))
             messagebox.showinfo("Решение уравнений 2 степени", text)
         elif D == 0:
-            x = -b / (2 * a)
+            x = -b / (2*a)
             text="X: %s \n" % round(x)
             messagebox.showinfo("Решение уравнений 2 степени", text)
         else:
-            z1 = complex(round(-b + sqrt(abs(b ** 2 - 4 * a * c)) / (2 * a)))
-            z2 = complex(round(-b - sqrt(abs(b ** 2 - 4 * a * c)) / (2 * a)))
+            z1 = complex(round(-b + sqrt(abs(b**2 - 4*a*c)) / (2*a)))
+            z2 = complex(round(-b - sqrt(abs(b**2 - 4*a*c)) / (2*a)))
             text="\n Z1: %s \n Z2: %s \n" % (z1, z2)
             messagebox.showinfo("Решение уравнений 2 степени", "У этого уравнения два комплексных корня:" + text)
 
@@ -116,6 +120,9 @@ def create_3():
     newWindow_3.resizable(False, False)
     newWindow_3.title('Решение уравнений 3 степени')
 
+    def exploer():
+        webbrowser.open('https://ru.wikipedia.org/wiki/Формула_Кардано')
+
     def solver3():
         a = current_value_1.get()
         b = current_value_2.get()
@@ -136,6 +143,9 @@ def create_3():
         x3 = (y3 - (b/3*a))
         text="\n X1: %s \n X2: %s \n X3: %s \n" % (x1, x2, x3)
         messagebox.showinfo("Решение уравнений 3 степени", text)
+
+    btn_exp = ttk.Button(newWindow_3, text='О методе решения', command=exploer)
+    btn_exp.place(relx=0.425,rely=0.5)
 
     # exit button
     exit_button = ttk.Button(newWindow_3, text='Выход', command=newWindow_3.quit)
@@ -182,6 +192,9 @@ def create_4():
     newWindow_4.resizable(False, False)
     newWindow_4.title('Решение уравнений 4 степени')
 
+    def exploer():
+        webbrowser.open('https://ru.wikipedia.org/wiki/Метод_Феррари')
+
     def solver4():
         a = current_value_1.get()
         b = current_value_2.get()
@@ -190,32 +203,35 @@ def create_4():
         e = current_value_5.get()
         if a == 0:
             messagebox.showerror("Решение уравнений 4 степени", "Коэффициент при x в степени 4 не может быть равен 0.")
-        alf = -(3*b*b/8*a*a) + c/a
-        bet = (b**3/8*a**3) - (b*c/2*a**2) + d/a
-        gam = -(3*b**4/256*a**4) + (b**2*c/16*a**3) - (b*d/4*a**2) + (e/a)
+        alf = -((3*b*b)/(8*a*a)) + (c/a)
+        bet = ((b**3)/(8*a**3)) - ((b*c)/(2*a**2)) + (d/a)
+        gam = -((3*b**4)/(256*a**4)) + (((b**2)*c)/(16*a**3)) - ((b*d)/(4*a**2)) + (e/a)
         if bet == 0:
-            x1 = -(b/4*a) + ((-alf + (alf**2-4*gam)**(1/2))/2)**(1/2)
-            x2 = -(b/4*a) + ((-alf - (alf**2-4*gam)**(1/2))/2)**(1/2)
-            x3 = -(b/4*a) - ((-alf + (alf**2-4*gam)**(1/2))/2)**(1/2)
-            x4 = -(b/4*a) - ((-alf - (alf**2-4*gam)**(1/2))/2)**(1/2)
+            x1 = -(b/(4*a)) + ((-alf + ((alf**2) - (4*gam))**(1/2))/2)**(1/2)
+            x2 = -(b/(4*a)) + ((-alf - ((alf**2) - (4*gam))**(1/2))/2)**(1/2)
+            x3 = -(b/(4*a)) - ((-alf + ((alf**2) - (4*gam))**(1/2))/2)**(1/2)
+            x4 = -(b/(4*a)) - ((-alf - ((alf**2) - (4*gam))**(1/2))/2)**(1/2)
             text="\n X1: %s \n X2: %s \n X3: %s \n X4: %s \n" % (x1, x2, x3, x4)
             messagebox.showinfo("Решение уравнений 4 степени", text)
         else:
-            P = -alf**2/12 - gam
-            Q = -alf**3/108 + alf*gam/3 - bet**2/8
-            R = -Q/2 +- (Q**2/4 + P**3/27)**(1/2)
+            P = -(alf**2)/12 - gam
+            Q = -(alf**3)/108 + (alf*gam)/3 - (bet**2)/8
+            R = -(Q/2) +- ((Q**2)/4 + (P**3)/27)**(1/2)
             U = R**(1/3)
             if U == 0:
                 y = -(5/6)*alf + U - Q**(1/3)
             else:
-                y = -(5/6)*alf + U + -P/3*U
-            W = (alf + 2*y)**(1/2)
+                y = -(5/6)*alf + U - P/(3*U)
+            W = (alf + (2*y))**(1/2)
             x1 = -b/4*a + ( W + (-(3*alf + 2*y + 2*bet/W))**(1/2))/2
             x2 = -b/4*a + ( W - (-(3*alf + 2*y + 2*bet/W))**(1/2))/2
             x3 = -b/4*a + ( -W + (-(3*alf + 2*y - 2*bet/W))**(1/2))/2
             x4 = -b/4*a + ( -W - (-(3*alf + 2*y - 2*bet/W))**(1/2))/2
             text="\n X1: %s \n X2: %s \n X3: %s \n X4: %s \n" % (x1, x2, x3, x4)
             messagebox.showinfo("Решение уравнений 4 степени", text)
+
+    btn_exp = ttk.Button(newWindow_4, text='О методе решения', command=exploer)
+    btn_exp.place(relx=0.425,rely=0.5)
 
     # exit button
     exit_button = ttk.Button(newWindow_4, text='Выход', command=newWindow_4.quit)
@@ -283,5 +299,9 @@ btn_3.place(relx=0.5, rely=0)
 
 btn_4 = ttk.Button(root, text='Решение уравнений 4 степени', command=create_4)
 btn_4.place(relx=0.75, rely=0)
+
+btn_exp = ttk.Button(root, text='О комплексных числах', command=exploer)
+btn_exp.place(relx=0.4,rely=0.5)
+
 
 root.mainloop()
