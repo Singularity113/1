@@ -8,7 +8,7 @@ import webbrowser
 root = tk.Tk()
 
 def exploer():
-    webbrowser.open('https://rsmu.ru/fileadmin/templates/DOC/Faculties/PF/Phys-mat/akimov_kompl_chisla.pdf')
+    webbrowser.open('https://ru.wikipedia.org/wiki/Комплексное_число')
 
 # create new windows
 def create_1():
@@ -302,6 +302,5 @@ btn_4.place(relx=0.75, rely=0)
 
 btn_exp = ttk.Button(root, text='О комплексных числах', command=exploer)
 btn_exp.place(relx=0.4,rely=0.5)
-
 
 root.mainloop()
