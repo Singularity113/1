@@ -1,14 +1,9 @@
 from math import sqrt
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
-import webbrowser
 
 # root window
 root = tk.Tk()
-
-def exploer():
-    webbrowser.open('https://ru.wikipedia.org/wiki/Комплексное_число')
 
 # create new windows
 def create_1():
@@ -21,12 +16,20 @@ def create_1():
         a = current_value_1.get()
         b = current_value_2.get()
         if a == 0:
-            messagebox.showerror("Решение уравнений 1 степени", "Коэффициент при x не может быть равен 0.")
+            nw1 = tk.Toplevel(newWindow_1)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 1 степени')
+            l1 = ttk.Label(nw1, text="Коэффициент при x не может быть равен 0.").pack()
         x = -b/a
         if x == 0:
             x = abs(x)
-        text = "X: %s" % round(x,2)
-        messagebox.showinfo("Решение уравнений 1 степени", text)
+        text = "Ответ:\n X: %s" % round(x,2)
+        nw1 = tk.Toplevel(newWindow_1)
+        nw1.geometry('350x120+600+400')
+        nw1.resizable(False, False)
+        nw1.title('Решение уравнений 1 степени')
+        l1 = ttk.Label(nw1, text=text).pack()
         
     # exit button
     exit_button = ttk.Button(newWindow_1, text='Выход', command=newWindow_1.quit)
@@ -65,22 +68,38 @@ def create_2():
         b = current_value_2.get()
         c = current_value_3.get()
         if a == 0:
-            messagebox.showerror("Решение уравнений 2 степени", "Коэффициент при x в степени 2 не может быть равен 0.")
+            nw1 = tk.Toplevel(newWindow_2)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 2 степени')
+            l1 = ttk.Label(nw1, text="Коэффициент при x в степени 2 не может быть равен 0.").pack()
         D = b**2 - 4*a*c
         if D > 0:
             x1 = (-b + sqrt(D))/(2*a)
             x2 = (-b - sqrt(D))/(2*a)
-            text="X1: %s \n X2: %s \n" % (round(x1,2), round(x2,2))
-            messagebox.showinfo("Решение уравнений 2 степени", text)
+            text="Ответ:\n X1: %s \n X2: %s \n" % (round(x1,2), round(x2,2))
+            nw1 = tk.Toplevel(newWindow_2)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 2 степени')
+            l1 = ttk.Label(nw1, text=text).pack()
         elif D == 0:
             x = -b / (2*a)
-            text="X: %s \n" % round(x)
-            messagebox.showinfo("Решение уравнений 2 степени", text)
+            text="Ответ:\n X: %s \n" % round(x)
+            nw1 = tk.Toplevel(newWindow_2)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 2 степени')
+            l1 = ttk.Label(nw1, text=text).pack()
         else:
             z1 = complex(round(-b + sqrt(abs(b**2 - 4*a*c)) / (2*a)))
             z2 = complex(round(-b - sqrt(abs(b**2 - 4*a*c)) / (2*a)))
-            text="\n Z1: %s \n Z2: %s \n" % (z1, z2)
-            messagebox.showinfo("Решение уравнений 2 степени", "У этого уравнения два комплексных корня:" + text)
+            text="У этого уравнения два комплексных корня:\n Z1: %s \n Z2: %s \n" % (z1, z2)
+            nw1 = tk.Toplevel(newWindow_2)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 2 степени')
+            l1 = ttk.Label(nw1, text=text).pack()
 
     # exit button
     exit_button = ttk.Button(newWindow_2, text='Выход', command=newWindow_2.quit)
@@ -120,16 +139,17 @@ def create_3():
     newWindow_3.resizable(False, False)
     newWindow_3.title('Решение уравнений 3 степени')
 
-    def exploer():
-        webbrowser.open('https://ru.wikipedia.org/wiki/Формула_Кардано')
-
     def solver3():
         a = current_value_1.get()
         b = current_value_2.get()
         c = current_value_3.get()
         d = current_value_4.get()
         if a == 0:
-            messagebox.showerror("Решение уравнений 3 степени", "Коэффициент при x в степени 3 не может быть равен 0.")
+            nw1 = tk.Toplevel(newWindow_3)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 3 степени')
+            l1 = ttk.Label(nw1, text="Коэффициент при x в степени 3 не может быть равен 0.").pack()
         p = (3*a*c - b*b)/(3*a*a)
         q = (2*b*b*b - 9*a*b*c + 27*a*a*d)/(27*a*a*a)
         Q = (p/3)**3 + (q/2)**2
@@ -141,11 +161,12 @@ def create_3():
         x1 = (y1 - (b/3*a))
         x2 = (y2 - (b/3*a))
         x3 = (y3 - (b/3*a))
-        text="\n X1: %s \n X2: %s \n X3: %s \n" % (x1, x2, x3)
-        messagebox.showinfo("Решение уравнений 3 степени", text)
-
-    btn_exp = ttk.Button(newWindow_3, text='О методе решения', command=exploer)
-    btn_exp.place(relx=0.425,rely=0.5)
+        text="Ответ:\n X1: %s \n X2: %s \n X3: %s \n" % (x1, x2, x3)
+        nw1 = tk.Toplevel(newWindow_3)
+        nw1.geometry('350x120+600+400')
+        nw1.resizable(False, False)
+        nw1.title('Решение уравнений 3 степени')
+        l1 = ttk.Label(nw1, text=text).pack()
 
     # exit button
     exit_button = ttk.Button(newWindow_3, text='Выход', command=newWindow_3.quit)
@@ -192,9 +213,6 @@ def create_4():
     newWindow_4.resizable(False, False)
     newWindow_4.title('Решение уравнений 4 степени')
 
-    def exploer():
-        webbrowser.open('https://ru.wikipedia.org/wiki/Метод_Феррари')
-
     def solver4():
         a = current_value_1.get()
         b = current_value_2.get()
@@ -202,7 +220,11 @@ def create_4():
         d = current_value_4.get()
         e = current_value_5.get()
         if a == 0:
-            messagebox.showerror("Решение уравнений 4 степени", "Коэффициент при x в степени 4 не может быть равен 0.")
+            nw1 = tk.Toplevel(newWindow_4)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 4 степени')
+            l1 = ttk.Label(nw1, text="Коэффициент при x в степени 4 не может быть равен 0.").pack()
         alf = -((3*b*b)/(8*a*a)) + (c/a)
         bet = ((b**3)/(8*a**3)) - ((b*c)/(2*a**2)) + (d/a)
         gam = -((3*b**4)/(256*a**4)) + (((b**2)*c)/(16*a**3)) - ((b*d)/(4*a**2)) + (e/a)
@@ -211,8 +233,12 @@ def create_4():
             x2 = -(b/(4*a)) + ((-alf - ((alf**2) - (4*gam))**(1/2))/2)**(1/2)
             x3 = -(b/(4*a)) - ((-alf + ((alf**2) - (4*gam))**(1/2))/2)**(1/2)
             x4 = -(b/(4*a)) - ((-alf - ((alf**2) - (4*gam))**(1/2))/2)**(1/2)
-            text="\n X1: %s \n X2: %s \n X3: %s \n X4: %s \n" % (x1, x2, x3, x4)
-            messagebox.showinfo("Решение уравнений 4 степени", text)
+            text="Ответ:\n X1: %s \n X2: %s \n X3: %s \n X4: %s \n" % (x1, x2, x3, x4)
+            nw1 = tk.Toplevel(newWindow_4)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 4 степени')
+            l1 = ttk.Label(nw1, text=text).pack()
         else:
             P = -(alf**2)/12 - gam
             Q = -(alf**3)/108 + (alf*gam)/3 - (bet**2)/8
@@ -227,11 +253,12 @@ def create_4():
             x2 = -b/4*a + ( W - (-(3*alf + 2*y + 2*bet/W))**(1/2))/2
             x3 = -b/4*a + ( -W + (-(3*alf + 2*y - 2*bet/W))**(1/2))/2
             x4 = -b/4*a + ( -W - (-(3*alf + 2*y - 2*bet/W))**(1/2))/2
-            text="\n X1: %s \n X2: %s \n X3: %s \n X4: %s \n" % (x1, x2, x3, x4)
-            messagebox.showinfo("Решение уравнений 4 степени", text)
-
-    btn_exp = ttk.Button(newWindow_4, text='О методе решения', command=exploer)
-    btn_exp.place(relx=0.425,rely=0.5)
+            text="Ответ:\n X1: %s \n X2: %s \n X3: %s \n X4: %s \n" % (x1, x2, x3, x4)
+            nw1 = tk.Toplevel(newWindow_4)
+            nw1.geometry('350x120+600+400')
+            nw1.resizable(False, False)
+            nw1.title('Решение уравнений 4 степени')
+            l1 = ttk.Label(nw1, text=text).pack()
 
     # exit button
     exit_button = ttk.Button(newWindow_4, text='Выход', command=newWindow_4.quit)
@@ -299,8 +326,5 @@ btn_3.place(relx=0.5, rely=0)
 
 btn_4 = ttk.Button(root, text='Решение уравнений 4 степени', command=create_4)
 btn_4.place(relx=0.75, rely=0)
-
-btn_exp = ttk.Button(root, text='О комплексных числах', command=exploer)
-btn_exp.place(relx=0.4,rely=0.5)
 
 root.mainloop()
