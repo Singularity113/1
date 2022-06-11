@@ -145,7 +145,8 @@ def create_3():
         x1 = (y1 - (b/3*a))
         x2 = (y2 - (b/3*a))
         x3 = (y3 - (b/3*a))
-        text="Ответ:\n X1: %s \n X2: %s \n X3: %s \n" % (complex(round(x1.real,2),round(x1.imag,2)), complex(round(x2.real,2),round(x2.imag,2)), complex(round(x3.real,2),round(x3.imag,2)))
+        text="Ответ:\n X1: %s \n X2: %s \n X3: %s \n" % (complex(round(x1.real,2),round(x1.imag,2)),
+        complex(round(x2.real,2),round(x2.imag,2)), complex(round(x3.real,2),round(x3.imag,2)))
         nw1 = tk.Toplevel(newWindow_3)
         nw1.geometry('350x120+600+400')
         nw1.resizable(False, False)
