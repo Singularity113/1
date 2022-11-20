@@ -20,8 +20,8 @@ cur_c.execute("""CREATE TABLE Category(
 )""")
 db_category.commit()
 
-db_orders = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Orders.db')
-cur_o = db_orders.cursor()
+db_order = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+cur_o = db_order.cursor()
 cur_o.execute("""CREATE TABLE Orders(
     id_o INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(80),
@@ -29,7 +29,18 @@ cur_o.execute("""CREATE TABLE Orders(
     cost INTEGER NOT NULL,
     date TEXT 
 )""")
-db_orders.commit()
+db_order.commit()
+
+db_all = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\AllOrders.db')
+cur_all = db_all.cursor()
+cur_all.execute("""CREATE TABLE AllOrders(
+    id_o INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(80),
+    count INTEGER NOT NULL,
+    cost INTEGER NOT NULL,
+    date TEXT 
+)""")
+db_all.commit()
 
 cur_p.execute("""INSERT INTO NewProducts(name, id_c, count, cost) VALUES('DEXP Atlas H341 [Intel Celeron N4020, 2x1.1 ГГц, 4 ГБ DDR4, SSD 240 ГБ, без ОС]',1,10,11000)""")
 cur_p.execute("""INSERT INTO NewProducts(name, id_c, count, cost) VALUES('DEXP Aquilon O280 [Intel Celeron N4120, 4x1.1 ГГц, 8 ГБ DDR4, SSD 128 ГБ, Windows 10 Pro]',1,20,15000)""")
