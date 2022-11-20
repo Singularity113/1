@@ -2,7 +2,9 @@ import sqlite3
 import sys
 import subprocess
 import re
+import datetime
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from qt_material import apply_stylesheet
 
@@ -22,16 +24,16 @@ class Window1(QWidget):
         self.tableWidget = QTableWidget()
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableWidget.setRowCount(N)
-        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setColumnCount(5)
 
-        self.tableWidget.setHorizontalHeaderLabels(['Наименование','Категория','Количество','Цена'])
+        self.tableWidget.setHorizontalHeaderLabels(['id','Наименование','Категория','Количество','Цена'])
 
         self.cur.execute("""SELECT * FROM NewProducts""")
         items = self.cur.fetchall()
         for i in range(N):
-            for j in range(4):
-                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j+1])))
-                if j == 1:
+            for j in range(5):
+                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
+                if j == 2:
                     cat_id = items[i][2]
                     self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
                     self.cur_c = self.db_c.cursor()
@@ -52,51 +54,29 @@ class Window1(QWidget):
         grid_layout.addWidget(self.btn, 0, 1, Qt.AlignTop)
         self.btn.clicked.connect(self.update)
 
-        self.lbl_name1 = QLabel(self)
-        self.lbl_name1.setText('Добавление в корзину')
-        self.lbl_name1.setFixedWidth(220)
-        grid_layout.addWidget(self.lbl_name1, 5, 1)
-
-        self.lbl_name = QLabel(self)
-        self.lbl_name.setText('Введите наименование продукта:')
-        self.lbl_name.setFixedWidth(220)
-        grid_layout.addWidget(self.lbl_name, 6, 1)
-
-        self.e_name = QLineEdit(self)
-        self.e_name.setFixedWidth(220)
-        grid_layout.addWidget(self.e_name, 7, 1)
+        self.btn_find = QPushButton(self)
+        self.btn_find.setText('&Найти категорию')
+        self.btn_find.setFixedWidth(220)
+        grid_layout.addWidget(self.btn_find, 1, 1)
+        self.btn_find.clicked.connect(self.find_cat)
 
         self.btn_pack = QPushButton(self)
         self.btn_pack.setText('&Добавить в корзину')
         self.btn_pack.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_pack, 8, 1)
+        grid_layout.addWidget(self.btn_pack, 2, 1)
         self.btn_pack.clicked.connect(self.trash)
+
+        self.btn_sell = QPushButton(self)
+        self.btn_sell.setText('&Просмотреть корзину')
+        self.btn_sell.setFixedWidth(220)
+        grid_layout.addWidget(self.btn_sell, 3, 1)
+        self.btn_sell.clicked.connect(self.look)
 
         self.btn_sell = QPushButton(self)
         self.btn_sell.setText('&Совершить покупку')
         self.btn_sell.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_sell, 9, 1)
-        self.btn_sell.clicked.connect(self.chack)
-
-        self.lbl_category = QLabel(self)
-        self.lbl_category.setText('Поиск по категории')
-        self.lbl_category.setFixedWidth(220)
-        grid_layout.addWidget(self.lbl_category, 1, 1)
-
-        self.lbl_find = QLabel(self)
-        self.lbl_find.setText('Введите категорию')
-        self.lbl_find.setFixedWidth(220)
-        grid_layout.addWidget(self.lbl_find, 2, 1)
-
-        self.e_find = QLineEdit(self)
-        self.e_find.setFixedWidth(220)
-        grid_layout.addWidget(self.e_find, 3, 1)
-
-        self.btn_find = QPushButton(self)
-        self.btn_find.setText('&Найти')
-        self.btn_find.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_find, 4, 1)
-        self.btn_find.clicked.connect(self.find_cat)
+        grid_layout.addWidget(self.btn_sell, 4, 1)
+        # self.btn_sell.clicked.connect(self.chack)
 
         self.db.close()
 
@@ -110,16 +90,16 @@ class Window1(QWidget):
         self.cur.connection.commit()  
         assert N == len(allrows)
         self.tableWidget.setRowCount(N)
-        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setColumnCount(5)
 
-        self.tableWidget.setHorizontalHeaderLabels(['Наименование','Категория','Количество','Цена'])
+        self.tableWidget.setHorizontalHeaderLabels(['id','Наименование','Категория','Количество','Цена'])
 
         self.cur.execute("""SELECT * FROM NewProducts""")
         items = self.cur.fetchall()
         for i in range(N):
-            for j in range(4):
-                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j+1])))
-                if j == 1:
+            for j in range(5):
+                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
+                if j == 2:
                     cat_id = items[i][2]
                     self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
                     self.cur_c = self.db_c.cursor()
@@ -138,7 +118,7 @@ class Window1(QWidget):
         self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
         self.cur_c = self.db_c.cursor()
         
-        value_cat = self.e_find.text()
+        value_cat = self.tableWidget.model().data(self.tableWidget.currentIndex())
 
         self.cur_c.execute(f"""SELECT * FROM Category WHERE name='{value_cat}'""")
         self.i_c = self.cur_c.fetchall()[0][0]
@@ -149,18 +129,18 @@ class Window1(QWidget):
         self.cur.connection.commit()  
         assert N == len(allrows)
         self.tableWidget.setRowCount(N)
-        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setColumnCount(5)
 
         self.tableWidget.clearContents()
 
-        self.tableWidget.setHorizontalHeaderLabels(['Наименование','Категория','Количество','Цена'])
+        self.tableWidget.setHorizontalHeaderLabels(['id','Наименование','Категория','Количество','Цена'])
 
         self.cur.execute(f"""SELECT * FROM NewProducts WHERE id_c={self.i_c}""")
         items = self.cur.fetchall()
         for i in range(N):
-            for j in range(4):
-                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j+1])))
-                if j == 1:
+            for j in range(5):
+                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
+                if j == 2:
                     cat_id = items[i][2]
                     self.cur_c.execute(f"""SELECT name FROM Category WHERE id_c='{cat_id}'""")
                     name_c = self.cur_c.fetchone()
@@ -168,42 +148,33 @@ class Window1(QWidget):
                     self.tableWidget.setItem(i,j, QTableWidgetItem(str(n_c)))
         self.tableWidget.resizeColumnsToContents()
 
-        self.e_find.clear()
-
         self.db.close()
-###################################################
+
     def trash(self):
         self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
         self.cur = self.db.cursor()
 
-        self.value_name = [(self.e_name.text())]
-        self.count_prod = self.cur.execute("""SELECT * FROM NewProducts WHERE name=?""", self.value_name).fetchone()[2]
-        self.name_prod = self.cur.execute("""SELECT * FROM NewProducts WHERE name=?""", self.value_name).fetchone()[0]
-        self.cost_prod = self.cur.execute("""SELECT * FROM NewProducts WHERE name=?""", self.value_name).fetchone()[3]
-        self.cur.execute("""UPDATE NewProducts SET count=count-1 WHERE name=?""", (self.value_name))
+        self.value_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
+        self.prod_name = self.cur.execute(f"""SELECT name FROM NewProducts WHERE id_prod='{self.value_id}'""").fetchone()
+        self.prod_cost = self.cur.execute(f"""SELECT cost FROM NewProducts WHERE id_prod='{self.value_id}'""").fetchone()
+        # self.cur.execute("""UPDATE NewProducts SET count=count-1 WHERE name=?""", (self.value_name))
         self.db.commit() 
-        self.update()
-
-        self.summ = 0
-        self.summ += self.cost_prod
-
-        g=open(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\trash.txt','a')
-        g.write('ООО"GayWebsite" \nАдрес: ул. Slaves, дом Dangeon Master, корп. 300$ \n\nЧек о совершенной покупке \n\nНаименование продукта: ')
-        g.write(str(self.name_prod))
-        g.write(' Количество: ')
-        g.write(str(1))
-        g.write(' Цена: ')
-        g.write(str(self.cost_prod))
-        g.write('\n')
-        g.write('Итоговая стоимость: ')
-        g.write(str(self.summ))
-        g.close()
-
-        self.e_name.clear()
-        
         self.db.close()
+        
+        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.cur_o = self.db_o.cursor()
 
-    def chack(self):
+        self.date = datetime.datetime.today()
+        self.data = self.date.strftime("%Y-%m-%d-%H.%M")
+        self.prod_name = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.prod_name))
+        self.prod_cost = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.prod_cost))
+
+        self.cur_o.execute(f"""INSERT INTO Orders(name,count,cost,date) VALUES('{self.prod_name}',1,{self.prod_cost},'{self.data}')""")
+        self.db_o.commit()
+        self.db_o.close()
+        
+###################################################
+    def look(self):
         subprocess.Popen('C:/Program Files/Notepad++/notepad++.exe')
         
 class Window2(QWidget):
