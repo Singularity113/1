@@ -1,6 +1,5 @@
 import sqlite3
 import sys
-import subprocess
 import re
 import datetime
 from PyQt5.QtWidgets import *
@@ -25,7 +24,7 @@ class Window1(QWidget):
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableWidget.setRowCount(N)
         self.tableWidget.setColumnCount(5)
-
+        
         self.tableWidget.setHorizontalHeaderLabels(['id','Наименование','Категория','Количество','Цена'])
 
         self.cur.execute("""SELECT * FROM NewProducts""")
@@ -49,7 +48,7 @@ class Window1(QWidget):
         grid_layout.addWidget(self.tableWidget, 0, 0, N, 1)
 
         self.btn = QPushButton(self)
-        self.btn.setText('&Показать все категории')
+        self.btn.setText('&Показать всю таблицу')
         self.btn.setFixedWidth(220)
         grid_layout.addWidget(self.btn, 0, 1, Qt.AlignTop)
         self.btn.clicked.connect(self.update)
@@ -66,21 +65,51 @@ class Window1(QWidget):
         grid_layout.addWidget(self.btn_pack, 2, 1)
         self.btn_pack.clicked.connect(self.trash)
 
-        self.btn_sell = QPushButton(self)
-        self.btn_sell.setText('&Просмотреть корзину')
-        self.btn_sell.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_sell, 3, 1)
-        self.btn_sell.clicked.connect(self.look)
+        self.btn_see = QPushButton(self)
+        self.btn_see.setText('&Просмотреть корзину')
+        self.btn_see.setFixedWidth(220)
+        grid_layout.addWidget(self.btn_see, 3, 1)
+        self.btn_see.clicked.connect(self.look)
+
+        self.btn_p = QPushButton(self)
+        self.btn_p.setText('&Увеличить количество')
+        self.btn_p.setFixedWidth(220)
+        grid_layout.addWidget(self.btn_p, 4, 1)
+        self.btn_p.clicked.connect(self.plus)
+        self.btn_p.setEnabled(False)
+
+        self.btn_m = QPushButton(self)
+        self.btn_m.setText('&Уменьшить количество')
+        self.btn_m.setFixedWidth(220)
+        grid_layout.addWidget(self.btn_m, 5, 1)
+        self.btn_m.clicked.connect(self.minus)
+        self.btn_m.setEnabled(False)
+
+        self.btn_dell = QPushButton(self)
+        self.btn_dell.setText('&Удалить из корзины')
+        self.btn_dell.setFixedWidth(220)
+        grid_layout.addWidget(self.btn_dell, 6, 1)
+        self.btn_dell.clicked.connect(self.dell)
+        self.btn_dell.setEnabled(False)
 
         self.btn_sell = QPushButton(self)
         self.btn_sell.setText('&Совершить покупку')
         self.btn_sell.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_sell, 4, 1)
-        # self.btn_sell.clicked.connect(self.chack)
+        grid_layout.addWidget(self.btn_sell, 7, 1)
+        self.btn_sell.clicked.connect(self.sell)
+        self.btn_sell.setEnabled(False)
 
         self.db.close()
 
     def update(self):
+        self.btn_pack.setEnabled(True)
+        self.btn_find.setEnabled(True)
+        self.btn_see.setEnabled(True)
+        self.btn_p.setEnabled(False)
+        self.btn_m.setEnabled(False)
+        self.btn_dell.setEnabled(False)
+        self.btn_sell.setEnabled(False)
+
         self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
         self.cur = self.db.cursor()
 
@@ -157,26 +186,142 @@ class Window1(QWidget):
         self.value_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
         self.prod_name = self.cur.execute(f"""SELECT name FROM NewProducts WHERE id_prod='{self.value_id}'""").fetchone()
         self.prod_cost = self.cur.execute(f"""SELECT cost FROM NewProducts WHERE id_prod='{self.value_id}'""").fetchone()
-        # self.cur.execute("""UPDATE NewProducts SET count=count-1 WHERE name=?""", (self.value_name))
+
         self.db.commit() 
         self.db.close()
         
         self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
         self.cur_o = self.db_o.cursor()
 
-        self.date = datetime.datetime.today()
-        self.data = self.date.strftime("%Y-%m-%d-%H.%M")
         self.prod_name = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.prod_name))
         self.prod_cost = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.prod_cost))
 
-        self.cur_o.execute(f"""INSERT INTO Orders(name,count,cost,date) VALUES('{self.prod_name}',1,{self.prod_cost},'{self.data}')""")
+        self.cur_o.execute(f"""INSERT INTO Orders(id_prod,name,count,cost) VALUES({self.value_id},'{self.prod_name}',1,{self.prod_cost})""")
         self.db_o.commit()
         self.db_o.close()
         
-###################################################
     def look(self):
-        subprocess.Popen('C:/Program Files/Notepad++/notepad++.exe')
+        self.btn_p.setEnabled(True)
+        self.btn_m.setEnabled(True)
+        self.btn_dell.setEnabled(True)
+        self.btn_sell.setEnabled(True)
+        self.btn_pack.setEnabled(False)
+        self.btn_find.setEnabled(False)
+        self.btn_see.setEnabled(False)
+
+        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.cur_o = self.db_o.cursor()
+
+        self.cur_o.execute("""BEGIN""")  
+        N = self.cur_o.execute("""SELECT COUNT() FROM Orders""").fetchone()[0]
+        allrows = self.cur_o.execute("""SELECT * FROM Orders""").fetchall()
+        self.cur_o.connection.commit()  
+        assert N == len(allrows)
+        self.tableWidget.setRowCount(N)
+        self.tableWidget.setColumnCount(4)
+
+        self.tableWidget.setHorizontalHeaderLabels(['ID','Наименование','Количество','Цена'])
+
+        self.total = self.cur_o.execute("""SELECT TOTAL(cost) FROM Orders""").fetchone()[0]
+
+        self.cur_o.execute("""SELECT * FROM Orders""")
+        items = self.cur_o.fetchall()
+        for i in range(N):
+            for j in range(4):
+                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
+        self.tableWidget.resizeColumnsToContents()
+
+        self.db_o.close()
+
+    def plus(self):
+        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.cur_o = self.db_o.cursor()
+
+        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.cur = self.db.cursor()
+
+        self.v_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
+        self.cur.execute(f"""SELECT cost FROM NewProducts WHERE id_prod={self.v_id}""")
+        self.cost = self.cur.fetchall()
+        self.cost = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.cost))
+        self.cur_o.execute(f"""UPDATE Orders set count=count+1 WHERE id_prod={self.v_id}""")
+        self.cur_o.execute(f"""UPDATE Orders set cost=cost+{self.cost} WHERE id_prod={self.v_id}""")
+        self.db_o.commit()
+
+        self.look()
         
+        self.db.close()
+        self.db_o.close()
+
+    def minus(self):
+        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.cur_o = self.db_o.cursor()
+
+        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.cur = self.db.cursor()
+
+        self.v_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
+        self.cur.execute(f"""SELECT cost FROM NewProducts WHERE id_prod={self.v_id}""")
+        self.cost = self.cur.fetchall()
+        self.cost = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.cost))
+        self.cur_o.execute(f"""UPDATE Orders set count=count-1 WHERE id_prod={self.v_id}""")
+        self.cur_o.execute(f"""UPDATE Orders set cost=cost-{self.cost} WHERE id_prod={self.v_id}""")
+
+        self.cur_o.execute(f"""DELETE FROM Orders WHERE count=0""")
+        self.db_o.commit()
+
+        self.look()
+
+        self.db.close()
+        self.db_o.close()
+
+    def dell(self):
+        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.cur_o = self.db_o.cursor()
+
+        self.d_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
+        self.cur_o.execute(f"""DELETE FROM Orders WHERE id_prod={self.d_id}""")
+        self.db_o.commit()
+
+        self.db_o.close()
+        self.look()
+        
+    def sell(self):
+        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.cur = self.db.cursor()
+
+        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.cur_o = self.db_o.cursor()
+
+        self.db_all = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\AllOrders.db')
+        self.cur_all = self.db_all.cursor()
+
+        self.cur_o.execute("""SELECT * FROM Orders""")
+        items = self.cur_o.fetchall()
+
+        self.cur_o.execute("""BEGIN""")  
+        N = self.cur_o.execute("""SELECT COUNT() FROM Orders""").fetchone()[0]
+        allrows = self.cur_o.execute("""SELECT * FROM Orders""").fetchall()
+        self.cur_o.connection.commit()  
+        assert N == len(allrows)
+
+        self.date = datetime.datetime.today()
+        self.data0 = self.date.strftime("%Y-%m-%d(%H:%M)")
+
+        for i in range(N):
+            self.cur.execute(f"""UPDATE NewProducts set count=count-{items[i][2]} WHERE id_prod={items[i][0]}""")
+            self.cur_all.execute(f"""INSERT INTO AllOrders(id_prod, name, count, cost, date) VALUES({items[i][0]},'{items[i][1]}',{items[i][2]},{items[i][3]},'{self.data0}')""")
+        self.db.commit()
+        self.db_all.commit()
+
+        self.cur_o.execute("""DELETE FROM Orders""")
+        self.db_o.commit()
+
+        self.look()
+        self.db.close()
+        self.db_all.close()
+        self.db_o.close()
+####COMPLITE 25.11.2022
 class Window2(QWidget):
     def __init__(self):
         super(Window2, self).__init__()
@@ -388,4 +533,13 @@ if __name__ == '__main__':
     win = MainWindow()
     apply_stylesheet(app, theme='dark_cyan.xml')
     win.show()
+    # sys.__excepthook__ = sys.excepthook
+    # def my_exeption_hook(exctype, value, traceback):
+    #     msg = QMessageBox()
+    #     msg.setIcon(QMessageBox.Information)
+    #     msg.setText('Введены не верные данные')
+    #     msg.setWindowTitle('Ошибка!')
+    #     msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+    #     msg.exec_()
+    # sys.excepthook = my_exeption_hook
     sys.exit(app.exec_())
