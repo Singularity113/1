@@ -10,7 +10,7 @@ from qt_material import apply_stylesheet
 class Window1(QWidget):
     def __init__(self):
         super(Window1, self).__init__()
-        self.setWindowTitle('Продавец')
+        self.setWindowTitle('ИС для учета вычислительной техники и орг. техники')
     
         self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
         self.cur = self.db.cursor()
@@ -321,11 +321,11 @@ class Window1(QWidget):
         self.db.close()
         self.db_all.close()
         self.db_o.close()
-####COMPLITE 25.11.2022
+
 class Window2(QWidget):
     def __init__(self):
         super(Window2, self).__init__()
-        self.setWindowTitle('Кладовщик')
+        self.setWindowTitle('ИС для учета вычислительной техники и орг. техники')
 
         self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
         self.cur = self.db.cursor()
@@ -336,21 +336,25 @@ class Window2(QWidget):
         self.cur.connection.commit()  
         assert N == len(allrows)
         self.tableWidget = QTableWidget()
-        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableWidget.setRowCount(N)
-        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setColumnCount(5)
 
-        self.tableWidget.setHorizontalHeaderLabels(['Наименование','Категория','Количество','Цена'])
+        self.tableWidget.setHorizontalHeaderLabels(['ID','Наименование','Категория','Количество','Цена'])
 
         self.cur.execute("""SELECT * FROM NewProducts""")
         items = self.cur.fetchall()
-        row = 0
-        col = 0
-        for row in range(N):
-            for col in range(4):
-                self.tableWidget.setItem(row,col, QTableWidgetItem(str(items[row][col])))
+        for i in range(N):
+            for j in range(5):
+                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
+                if j == 2:
+                    cat_id = items[i][2]
+                    self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+                    self.cur_c = self.db_c.cursor()
+                    self.cur_c.execute(f"""SELECT name FROM Category WHERE id_c={cat_id}""")
+                    name_c = self.cur_c.fetchone()
+                    n_c = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(name_c))
+                    self.tableWidget.setItem(i,j, QTableWidgetItem(str(n_c)))
         self.tableWidget.resizeColumnsToContents()
-
         grid_layout = QGridLayout()
         self.setLayout(grid_layout)
 
@@ -358,68 +362,59 @@ class Window2(QWidget):
 
         self.lbl_add  = QLabel(self)
         self.lbl_add.setText('Добавление')
-        self.lbl_add.setFixedWidth(220)
+        self.lbl_add.setFixedWidth(240)
         grid_layout.addWidget(self.lbl_add, 0, 1)
 
         self.lbl_name = QLabel(self)
         self.lbl_name.setText('Введите наименование:')
-        self.lbl_name.setFixedWidth(220)
+        self.lbl_name.setFixedWidth(240)
         grid_layout.addWidget(self.lbl_name, 1, 1)
 
         self.e_name = QLineEdit(self)
-        self.e_name.setFixedWidth(220)
+        self.e_name.setFixedWidth(240)
         grid_layout.addWidget(self.e_name, 2, 1)
 
         self.lbl_category = QLabel(self)
         self.lbl_category.setText('Введите категорию:')
-        self.lbl_category.setFixedWidth(220)
+        self.lbl_category.setFixedWidth(240)
         grid_layout.addWidget(self.lbl_category, 3, 1)
 
         self.e_category = QLineEdit(self)
-        self.e_category.setFixedWidth(220)
+        self.e_category.setFixedWidth(240)
         grid_layout.addWidget(self.e_category, 4, 1)
 
         self.lbl_count = QLabel(self)
         self.lbl_count.setText('Введите количество:')
-        self.lbl_count.setFixedWidth(220)
+        self.lbl_count.setFixedWidth(240)
         grid_layout.addWidget(self.lbl_count, 5, 1)
 
         self.e_count = QLineEdit(self)
-        self.e_count.setFixedWidth(220)
+        self.e_count.setFixedWidth(240)
         grid_layout.addWidget(self.e_count, 6, 1)
 
         self.lbl_cost = QLabel(self)
         self.lbl_cost.setText('Введите цену:')
-        self.lbl_cost.setFixedWidth(220)
+        self.lbl_cost.setFixedWidth(240)
         grid_layout.addWidget(self.lbl_cost, 7, 1)
 
         self.e_cost = QLineEdit(self)
-        self.e_cost.setFixedWidth(220)
+        self.e_cost.setFixedWidth(240)
         grid_layout.addWidget(self.e_cost, 8, 1)
 
-        self.btn = QPushButton('Сохранить')
-        self.btn.setFixedWidth(220)
+        self.btn = QPushButton('&Сохранить')
+        self.btn.setFixedWidth(240)
         grid_layout.addWidget(self.btn, 9, 1)
         self.btn.clicked.connect(self.add)
 
-        self.lbl_del1  = QLabel(self)
-        self.lbl_del1.setText('Удаление')
-        self.lbl_del1.setFixedWidth(220)
-        grid_layout.addWidget(self.lbl_del1, 10, 1)
-
-        self.lbl_del  = QLabel(self)
-        self.lbl_del.setText('Введите наименование:')
-        self.lbl_del.setFixedWidth(220)
-        grid_layout.addWidget(self.lbl_del, 11, 1)
-
-        self.e_del = QLineEdit(self)
-        self.e_del.setFixedWidth(220)
-        grid_layout.addWidget(self.e_del, 12, 1)
-
-        self.btn_del = QPushButton('Удалить')
-        self.btn_del.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_del, 13, 1)
+        self.btn_del = QPushButton('&Удалить')
+        self.btn_del.setFixedWidth(240)
+        grid_layout.addWidget(self.btn_del, 10, 1)
         self.btn_del.clicked.connect(self.dl)
+
+        self.btn_re = QPushButton('&Сохранить редактирование')
+        self.btn_re.setFixedWidth(240)
+        grid_layout.addWidget(self.btn_re, 11, 1)
+        # self.btn_re.clicked.connect(self.rewrite)
 
         self.db.close()
 
@@ -433,17 +428,24 @@ class Window2(QWidget):
         self.cur.connection.commit()  
         assert N == len(allrows)
         self.tableWidget.setRowCount(N)
-        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setColumnCount(5)
 
-        self.tableWidget.setHorizontalHeaderLabels(['Наименование','Категория','Количество','Цена'])
+        self.tableWidget.setHorizontalHeaderLabels(['ID','Наименование','Категория','Количество','Цена'])
 
         self.cur.execute("""SELECT * FROM NewProducts""")
         items = self.cur.fetchall()
-        row = 0
-        col = 0
-        for row in range(N):
-            for col in range(4):
-                self.tableWidget.setItem(row,col, QTableWidgetItem(str(items[row][col])))
+        for i in range(N):
+            for j in range(5):
+                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
+                if j == 2:
+                    cat_id = items[i][2]
+                    self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+                    self.cur_c = self.db_c.cursor()
+                    self.cur_c.execute(f"""SELECT name FROM Category WHERE id_c={cat_id}""")
+                    name_c = self.cur_c.fetchone()
+                    n_c = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(name_c))
+                    self.tableWidget.setItem(i,j, QTableWidgetItem(str(n_c)))
+        self.tableWidget.resizeColumnsToContents()
 
         self.db.close()
 
@@ -451,16 +453,29 @@ class Window2(QWidget):
         self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
         self.cur = self.db.cursor()
 
-        values = [(self.e_name.text(), self.e_category.text(), self.e_count.text(), self.e_cost.text())]
+        self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+        self.cur_c = self.db_c.cursor()
 
-        self.cur.executemany("""INSERT INTO NewProducts VALUES(?,?,?,?);""", values)
-        self.db.commit()
+        id_cat = self.cur_c.execute(f"""SELECT id_c FROM Category WHERE name='{self.e_category.text()}'""").fetchone()
+        id_cat = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(id_cat))
+
+        if id_cat == None:
+            self.cur_c.execute(f"""INSERT INTO Category(name) VALUES('{self.e_category.text()}')""")
+            self.db_c.commit()
+            id_cat = self.cur_c.execute(f"""SELECT id_c FROM Category WHERE name='{self.e_category.text()}'""").fetchone()
+            id_cat = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(id_cat))
+            self.cur.execute(f"""INSERT INTO NewProducts(name, id_c, count, cost) VALUES('{self.e_name.text()}',{id_cat},{self.e_count.text()},{self.e_cost.text()})""")
+            self.db.commit()
+        else:
+            self.cur.execute(f"""INSERT INTO NewProducts(name, id_c, count, cost) VALUES('{self.e_name.text()}',{id_cat},{self.e_count.text()},{self.e_cost.text()})""")
+            self.db.commit()
 
         self.e_name.clear()
         self.e_category.clear()
         self.e_count.clear()
         self.e_cost.clear()
 
+        self.db_c.close()
         self.db.close()
         self.update()
 
@@ -468,15 +483,13 @@ class Window2(QWidget):
         self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
         self.cur = self.db.cursor()
 
-        value = [self.e_del.text()]
-        self.cur.execute("""DELETE FROM NewProducts WHERE name=?""", value)
+        self.value = self.tableWidget.model().data(self.tableWidget.currentIndex())
+        self.cur.execute("""DELETE FROM NewProducts WHERE id_prod=?""", self.value)
         self.db.commit()
-
-        self.e_del.clear()
 
         self.db.close()
         self.update()
-
+#########def rewrite(self):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
