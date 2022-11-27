@@ -244,9 +244,26 @@ class Window1(QWidget):
         self.cur.execute(f"""SELECT cost FROM NewProducts WHERE id_prod={self.v_id}""")
         self.cost = self.cur.fetchall()
         self.cost = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.cost))
-        self.cur_o.execute(f"""UPDATE Orders set count=count+1 WHERE id_prod={self.v_id}""")
-        self.cur_o.execute(f"""UPDATE Orders set cost=cost+{self.cost} WHERE id_prod={self.v_id}""")
-        self.db_o.commit()
+
+        self.cur.execute(f"""SELECT count FROM NewProducts WHERE id_prod={self.v_id}""")
+        self.count = self.cur.fetchall()
+        self.count = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.count))
+
+        self.cur_o.execute(f"""SELECT count FROM Orders WHERE id_prod={self.v_id}""")
+        self.count_o = self.cur_o.fetchall()
+        self.count_o = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.count_o))
+
+        if self.count_o != self.count:
+            self.cur_o.execute(f"""UPDATE Orders set count=count+1 WHERE id_prod={self.v_id}""")
+            self.cur_o.execute(f"""UPDATE Orders set cost=cost+{self.cost} WHERE id_prod={self.v_id}""")
+            self.db_o.commit()
+        else:
+            self.msg = QMessageBox()
+            self.msg.setIcon(QMessageBox.Information)
+            self.msg.setText('Товар закончился')
+            self.msg.setWindowTitle('Ошибка!')
+            self.msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            self.msg.exec_()
 
         self.look()
         
@@ -414,7 +431,7 @@ class Window2(QWidget):
         self.btn_re = QPushButton('&Сохранить редактирование')
         self.btn_re.setFixedWidth(240)
         grid_layout.addWidget(self.btn_re, 11, 1)
-        # self.btn_re.clicked.connect(self.rewrite)
+        self.btn_re.clicked.connect(self.rewrite)
 
         self.db.close()
 
@@ -456,10 +473,10 @@ class Window2(QWidget):
         self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
         self.cur_c = self.db_c.cursor()
 
-        id_cat = self.cur_c.execute(f"""SELECT id_c FROM Category WHERE name='{self.e_category.text()}'""").fetchone()
+        id_cat = self.cur_c.execute(f"""SELECT id_c FROM Category WHERE name='{self.e_category.text()}'""").fetchall()
         id_cat = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(id_cat))
 
-        if id_cat == None:
+        if id_cat == '':
             self.cur_c.execute(f"""INSERT INTO Category(name) VALUES('{self.e_category.text()}')""")
             self.db_c.commit()
             id_cat = self.cur_c.execute(f"""SELECT id_c FROM Category WHERE name='{self.e_category.text()}'""").fetchone()
@@ -483,13 +500,47 @@ class Window2(QWidget):
         self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
         self.cur = self.db.cursor()
 
-        self.value = self.tableWidget.model().data(self.tableWidget.currentIndex())
-        self.cur.execute("""DELETE FROM NewProducts WHERE id_prod=?""", self.value)
+        self.value_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
+        self.cur.execute(f"""DELETE FROM NewProducts WHERE id_prod={self.value_id}""")
         self.db.commit()
 
         self.db.close()
         self.update()
-#########def rewrite(self):
+
+    def rewrite(self):
+        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.cur = self.db.cursor()
+
+        self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+        self.cur_c = self.db_c.cursor()
+
+        rows = self.tableWidget.rowCount()
+        cols = self.tableWidget.columnCount()
+        data = []
+        for row in range(rows):
+            tmp = []
+            for col in range(cols):
+                tmp.append(self.tableWidget.item(row,col).text())
+            data.append(tmp)
+
+        for i in range(rows):
+            for j in range(cols):
+                if j == 2:
+                    cat_name = data[i][2]
+                    self.cur_c.execute(f"""SELECT id_c FROM Category WHERE name='{cat_name}'""")
+                    id_c = self.cur_c.fetchone()
+                    id_c = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(id_c))
+                    data[i][2] = id_c
+
+        self.cur.execute("""DELETE FROM NewProducts""")
+        for i in range(rows):
+            self.cur.execute(f"""INSERT INTO NewProducts(name,id_c,count,cost) VALUES('{data[i][1]}',{data[i][2]},{data[i][3]},{data[i][4]})""")
+        self.db.commit()
+
+        self.db.close()
+        self.db_c.close()
+        self.update()
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
