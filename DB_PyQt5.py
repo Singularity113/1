@@ -48,54 +48,60 @@ class Window1(QWidget):
         grid_layout.addWidget(self.tableWidget, 0, 0, N, 1)
 
         self.btn = QPushButton(self)
-        self.btn.setText('&Показать всю таблицу')
-        self.btn.setFixedWidth(220)
-        grid_layout.addWidget(self.btn, 0, 1, Qt.AlignTop)
+        self.btn.setText('&Главная')
+        self.btn.setFixedWidth(105)
+        grid_layout.addWidget(self.btn, 0, 1)
         self.btn.clicked.connect(self.update)
+
+        self.btn_all = QPushButton(self)
+        self.btn_all.setText('&Отчет')
+        self.btn_all.setFixedWidth(105)
+        grid_layout.addWidget(self.btn_all, 0, 2)
+        self.btn_all.clicked.connect(self.all)
 
         self.btn_find = QPushButton(self)
         self.btn_find.setText('&Найти категорию')
         self.btn_find.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_find, 1, 1)
+        grid_layout.addWidget(self.btn_find, 1, 1, 1, 2)
         self.btn_find.clicked.connect(self.find_cat)
 
         self.btn_pack = QPushButton(self)
         self.btn_pack.setText('&Добавить в корзину')
         self.btn_pack.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_pack, 2, 1)
+        grid_layout.addWidget(self.btn_pack, 2, 1, 1, 2)
         self.btn_pack.clicked.connect(self.trash)
 
         self.btn_see = QPushButton(self)
         self.btn_see.setText('&Просмотреть корзину')
         self.btn_see.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_see, 3, 1)
+        grid_layout.addWidget(self.btn_see, 3, 1, 1, 2)
         self.btn_see.clicked.connect(self.look)
 
         self.btn_p = QPushButton(self)
         self.btn_p.setText('&Увеличить количество')
         self.btn_p.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_p, 4, 1)
+        grid_layout.addWidget(self.btn_p, 4, 1, 1, 2)
         self.btn_p.clicked.connect(self.plus)
         self.btn_p.setEnabled(False)
 
         self.btn_m = QPushButton(self)
         self.btn_m.setText('&Уменьшить количество')
         self.btn_m.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_m, 5, 1)
+        grid_layout.addWidget(self.btn_m, 5, 1, 1, 2)
         self.btn_m.clicked.connect(self.minus)
         self.btn_m.setEnabled(False)
 
         self.btn_dell = QPushButton(self)
         self.btn_dell.setText('&Удалить из корзины')
         self.btn_dell.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_dell, 6, 1)
+        grid_layout.addWidget(self.btn_dell, 6, 1, 1, 2)
         self.btn_dell.clicked.connect(self.dell)
         self.btn_dell.setEnabled(False)
 
         self.btn_sell = QPushButton(self)
         self.btn_sell.setText('&Совершить покупку')
         self.btn_sell.setFixedWidth(220)
-        grid_layout.addWidget(self.btn_sell, 7, 1)
+        grid_layout.addWidget(self.btn_sell, 7, 1, 1, 2)
         self.btn_sell.clicked.connect(self.sell)
         self.btn_sell.setEnabled(False)
 
@@ -323,7 +329,7 @@ class Window1(QWidget):
         assert N == len(allrows)
 
         self.date = datetime.datetime.today()
-        self.data0 = self.date.strftime("%Y-%m-%d(%H:%M)")
+        self.data0 = self.date.strftime("%Y - %m - %d (%H : %M : %S)")
 
         for i in range(N):
             self.cur.execute(f"""UPDATE NewProducts set count=count-{items[i][2]} WHERE id_prod={items[i][0]}""")
@@ -338,6 +344,30 @@ class Window1(QWidget):
         self.db.close()
         self.db_all.close()
         self.db_o.close()
+
+    def all(self):
+        self.db_all = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\AllOrders.db')
+        self.cur_all = self.db_all.cursor()
+
+        self.cur_all.execute("""BEGIN""")  
+        N = self.cur_all.execute("""SELECT COUNT() FROM AllOrders""").fetchone()[0]
+        allrows = self.cur_all.execute("""SELECT * FROM AllOrders""").fetchall()
+        self.cur_all.connection.commit()  
+        assert N == len(allrows)
+        self.tableWidget.setRowCount(N)
+        self.tableWidget.setColumnCount(5)
+
+        self.tableWidget.setHorizontalHeaderLabels(['ID','Наименование','Количество','Цена','Дата продажи'])
+
+        self.cur_all.execute("""SELECT * FROM AllOrders""")
+        items = self.cur_all.fetchall()
+
+        for i in range(N):
+            for j in range(5):
+                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
+        self.tableWidget.resizeColumnsToContents()
+
+        self.db_all.close()
 
 class Window2(QWidget):
     def __init__(self):
@@ -628,7 +658,7 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     win = MainWindow()
-    apply_stylesheet(app, theme='dark_cyan.xml')
+    apply_stylesheet(app, theme='dark_blue.xml')
     win.show()
     sys.__excepthook__ = sys.excepthook
     def my_exeption_hook(exctype, value, traceback):
