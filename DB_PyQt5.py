@@ -380,58 +380,68 @@ class Window2(QWidget):
         self.lbl_add  = QLabel(self)
         self.lbl_add.setText('Добавление')
         self.lbl_add.setFixedWidth(240)
-        grid_layout.addWidget(self.lbl_add, 0, 1)
+        grid_layout.addWidget(self.lbl_add, 1, 1, 1, 2)
 
         self.lbl_name = QLabel(self)
         self.lbl_name.setText('Введите наименование:')
         self.lbl_name.setFixedWidth(240)
-        grid_layout.addWidget(self.lbl_name, 1, 1)
+        grid_layout.addWidget(self.lbl_name, 2, 1, 1, 2)
 
         self.e_name = QLineEdit(self)
         self.e_name.setFixedWidth(240)
-        grid_layout.addWidget(self.e_name, 2, 1)
+        grid_layout.addWidget(self.e_name, 3, 1, 1, 2)
 
         self.lbl_category = QLabel(self)
         self.lbl_category.setText('Введите категорию:')
         self.lbl_category.setFixedWidth(240)
-        grid_layout.addWidget(self.lbl_category, 3, 1)
+        grid_layout.addWidget(self.lbl_category, 4, 1, 1, 2)
 
         self.e_category = QLineEdit(self)
         self.e_category.setFixedWidth(240)
-        grid_layout.addWidget(self.e_category, 4, 1)
+        grid_layout.addWidget(self.e_category, 5, 1, 1, 2)
 
         self.lbl_count = QLabel(self)
         self.lbl_count.setText('Введите количество:')
         self.lbl_count.setFixedWidth(240)
-        grid_layout.addWidget(self.lbl_count, 5, 1)
+        grid_layout.addWidget(self.lbl_count, 6, 1, 1, 2)
 
         self.e_count = QLineEdit(self)
         self.e_count.setFixedWidth(240)
-        grid_layout.addWidget(self.e_count, 6, 1)
+        grid_layout.addWidget(self.e_count, 7, 1, 1, 2)
 
         self.lbl_cost = QLabel(self)
         self.lbl_cost.setText('Введите цену:')
         self.lbl_cost.setFixedWidth(240)
-        grid_layout.addWidget(self.lbl_cost, 7, 1)
+        grid_layout.addWidget(self.lbl_cost, 8, 1, 1, 2)
 
         self.e_cost = QLineEdit(self)
         self.e_cost.setFixedWidth(240)
-        grid_layout.addWidget(self.e_cost, 8, 1)
+        grid_layout.addWidget(self.e_cost, 9, 1, 1, 2)
 
         self.btn = QPushButton('&Сохранить')
         self.btn.setFixedWidth(240)
-        grid_layout.addWidget(self.btn, 9, 1)
+        grid_layout.addWidget(self.btn, 10, 1, 1, 2)
         self.btn.clicked.connect(self.add)
 
         self.btn_del = QPushButton('&Удалить')
         self.btn_del.setFixedWidth(240)
-        grid_layout.addWidget(self.btn_del, 10, 1)
+        grid_layout.addWidget(self.btn_del, 11, 1, 1, 2)
         self.btn_del.clicked.connect(self.dl)
 
         self.btn_re = QPushButton('&Сохранить редактирование')
         self.btn_re.setFixedWidth(240)
-        grid_layout.addWidget(self.btn_re, 11, 1)
+        grid_layout.addWidget(self.btn_re, 12, 1, 1, 2)
         self.btn_re.clicked.connect(self.rewrite)
+
+        self.btn_main = QPushButton('&Главная')
+        self.btn_main.setFixedWidth(120)
+        grid_layout.addWidget(self.btn_main, 0, 1)
+        self.btn_main.clicked.connect(self.update)
+
+        self.btn_all = QPushButton('&Отчет')
+        self.btn_all.setFixedWidth(120)
+        grid_layout.addWidget(self.btn_all, 0, 2)
+        self.btn_all.clicked.connect(self.all)
 
         self.db.close()
 
@@ -532,14 +542,37 @@ class Window2(QWidget):
                     id_c = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(id_c))
                     data[i][2] = id_c
 
-        self.cur.execute("""DELETE FROM NewProducts""")
         for i in range(rows):
-            self.cur.execute(f"""INSERT INTO NewProducts(name,id_c,count,cost) VALUES('{data[i][1]}',{data[i][2]},{data[i][3]},{data[i][4]})""")
+            self.cur.execute(f"""UPDATE NewProducts SET name='{data[i][1]}', id_c={data[i][2]}, count={data[i][3]}, cost={data[i][4]} WHERE id_prod={data[i][0]}""")
         self.db.commit()
 
         self.db.close()
         self.db_c.close()
         self.update()
+
+    def all(self):
+        self.db_all = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\AllOrders.db')
+        self.cur_all = self.db_all.cursor()
+
+        self.cur_all.execute("""BEGIN""")  
+        N = self.cur_all.execute("""SELECT COUNT() FROM AllOrders""").fetchone()[0]
+        allrows = self.cur_all.execute("""SELECT * FROM AllOrders""").fetchall()
+        self.cur_all.connection.commit()  
+        assert N == len(allrows)
+        self.tableWidget.setRowCount(N)
+        self.tableWidget.setColumnCount(5)
+
+        self.tableWidget.setHorizontalHeaderLabels(['ID','Наименование','Количество','Цена','Дата продажи'])
+
+        self.cur_all.execute("""SELECT * FROM AllOrders""")
+        items = self.cur_all.fetchall()
+
+        for i in range(N):
+            for j in range(5):
+                self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
+        self.tableWidget.resizeColumnsToContents()
+
+        self.db_all.close()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -597,13 +630,13 @@ if __name__ == '__main__':
     win = MainWindow()
     apply_stylesheet(app, theme='dark_cyan.xml')
     win.show()
-    # sys.__excepthook__ = sys.excepthook
-    # def my_exeption_hook(exctype, value, traceback):
-    #     msg = QMessageBox()
-    #     msg.setIcon(QMessageBox.Information)
-    #     msg.setText('Введены не верные данные')
-    #     msg.setWindowTitle('Ошибка!')
-    #     msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-    #     msg.exec_()
-    # sys.excepthook = my_exeption_hook
+    sys.__excepthook__ = sys.excepthook
+    def my_exeption_hook(exctype, value, traceback):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText('Введены не верные данные')
+        msg.setWindowTitle('Ошибка!')
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        msg.exec_()
+    sys.excepthook = my_exeption_hook
     sys.exit(app.exec_())
