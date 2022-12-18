@@ -1,6 +1,6 @@
 import sqlite3
 
-db_prod = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+db_prod = sqlite3.connect(r'NewProducts.db')
 cur_p = db_prod.cursor()
 cur_p.execute("""CREATE TABLE NewProducts(
     id_prod INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,7 +12,7 @@ cur_p.execute("""CREATE TABLE NewProducts(
 )""")
 db_prod.commit()
 
-db_category = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+db_category = sqlite3.connect(r'Category.db')
 cur_c = db_category.cursor()
 cur_c.execute("""CREATE TABLE Category(
     id_c INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,25 +20,29 @@ cur_c.execute("""CREATE TABLE Category(
 )""")
 db_category.commit()
 
-db_order = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+db_order = sqlite3.connect(r'Order.db')
 cur_o = db_order.cursor()
 cur_o.execute("""CREATE TABLE Orders(
-    id_o INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_prod INTEGER,
     name VARCHAR(80),
     count INTEGER NOT NULL,
     cost INTEGER NOT NULL,
-    date TEXT 
+    FOREIGN KEY(id_prod) REFERENCES NewProducts(id_prod) 
 )""")
 db_order.commit()
 
-db_all = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\AllOrders.db')
+db_all = sqlite3.connect(r'AllOrders.db')
 cur_all = db_all.cursor()
 cur_all.execute("""CREATE TABLE AllOrders(
-    id_o INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_prod INTEGER,
     name VARCHAR(80),
     count INTEGER NOT NULL,
     cost INTEGER NOT NULL,
-    date TEXT 
+    date TEXT,
+    FOREIGN KEY(id_prod) REFERENCES Orders(id_prod)
+    FOREIGN KEY(name) REFERENCES Orders(name)
+    FOREIGN KEY(count) REFERENCES Orders(count)
+    FOREIGN KEY(cost) REFERENCES Orders(cost)
 )""")
 db_all.commit()
 
