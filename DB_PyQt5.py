@@ -11,22 +11,25 @@ class Window1(QWidget):
     def __init__(self):
         super(Window1, self).__init__()
         self.setWindowTitle('ИС для учета вычислительной техники и орг. техники')
-    
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        # Подключение к БД с продукцией/Категориями
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
-
+        self.db_c = sqlite3.connect(r'Category.db')
+        self.cur_c = self.db_c.cursor()
+        # Подсчитываем кол-во записей в БД
         self.cur.execute("""BEGIN""")  
         N = self.cur.execute("""SELECT COUNT() FROM NewProducts""").fetchone()[0]
         allrows = self.cur.execute("""SELECT * FROM NewProducts""").fetchall()
         self.cur.connection.commit()  
         assert N == len(allrows)
+        # Создаем таблицу(Нельзя редактировать)
         self.tableWidget = QTableWidget()
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableWidget.setRowCount(N)
         self.tableWidget.setColumnCount(5)
-        
+        # Заглавие столбцов
         self.tableWidget.setHorizontalHeaderLabels(['id','Наименование','Категория','Количество','Цена'])
-
+        # Заполнение таблицы
         self.cur.execute("""SELECT * FROM NewProducts""")
         items = self.cur.fetchall()
         for i in range(N):
@@ -34,19 +37,16 @@ class Window1(QWidget):
                 self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
                 if j == 2:
                     cat_id = items[i][2]
-                    self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
-                    self.cur_c = self.db_c.cursor()
                     self.cur_c.execute(f"""SELECT name FROM Category WHERE id_c={cat_id}""")
                     name_c = self.cur_c.fetchone()
                     n_c = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(name_c))
                     self.tableWidget.setItem(i,j, QTableWidgetItem(str(n_c)))
         self.tableWidget.resizeColumnsToContents()
-
+        # Расположение таблицы 
         grid_layout = QGridLayout()
         self.setLayout(grid_layout)
-
         grid_layout.addWidget(self.tableWidget, 0, 0, N, 1)
-
+        # Компоненты окна
         self.btn = QPushButton(self)
         self.btn.setText('&Главная')
         self.btn.setFixedWidth(105)
@@ -104,9 +104,10 @@ class Window1(QWidget):
         grid_layout.addWidget(self.btn_sell, 7, 1, 1, 2)
         self.btn_sell.clicked.connect(self.sell)
         self.btn_sell.setEnabled(False)
-
+        # Закрываем таблицы
         self.db.close()
-
+        self.db_c.close()
+# Обновление таблицы
     def update(self):
         self.btn_pack.setEnabled(True)
         self.btn_find.setEnabled(True)
@@ -115,10 +116,12 @@ class Window1(QWidget):
         self.btn_m.setEnabled(False)
         self.btn_dell.setEnabled(False)
         self.btn_sell.setEnabled(False)
-
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        # Подключение к БД
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
-
+        self.db_c = sqlite3.connect(r'Category.db')
+        self.cur_c = self.db_c.cursor()
+        # Подсчитываем новое кол-во записей
         self.cur.execute("""BEGIN""")  
         N = self.cur.execute("""SELECT COUNT() FROM NewProducts""").fetchone()[0]
         allrows = self.cur.execute("""SELECT * FROM NewProducts""").fetchall()
@@ -136,8 +139,6 @@ class Window1(QWidget):
                 self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
                 if j == 2:
                     cat_id = items[i][2]
-                    self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
-                    self.cur_c = self.db_c.cursor()
                     self.cur_c.execute(f"""SELECT name FROM Category WHERE id_c={cat_id}""")
                     name_c = self.cur_c.fetchone()
                     n_c = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(name_c))
@@ -145,16 +146,17 @@ class Window1(QWidget):
         self.tableWidget.resizeColumnsToContents()
 
         self.db.close()
-
+        self.db_c.close()
+# Поиск по категории
     def find_cat(self):
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
-        self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+        self.db_c = sqlite3.connect(r'Category.db')
         self.cur_c = self.db_c.cursor()
-        
+        # Получить значение щелчком мыши
         value_cat = self.tableWidget.model().data(self.tableWidget.currentIndex())
-
+        # Получение значения из таблицы Категорий
         self.cur_c.execute(f"""SELECT * FROM Category WHERE name='{value_cat}'""")
         self.i_c = self.cur_c.fetchall()[0][0]
 
@@ -184,9 +186,9 @@ class Window1(QWidget):
         self.tableWidget.resizeColumnsToContents()
 
         self.db.close()
-
+# Добавление в корзину
     def trash(self):
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
         self.value_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
@@ -196,7 +198,7 @@ class Window1(QWidget):
         self.db.commit() 
         self.db.close()
         
-        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.db_o = sqlite3.connect(r'Order.db')
         self.cur_o = self.db_o.cursor()
 
         self.prod_name = re.sub("[^A-Za-z0-9-^А-Яа-я- ]", "", str(self.prod_name))
@@ -205,7 +207,7 @@ class Window1(QWidget):
         self.cur_o.execute(f"""INSERT INTO Orders(id_prod,name,count,cost) VALUES({self.value_id},'{self.prod_name}',1,{self.prod_cost})""")
         self.db_o.commit()
         self.db_o.close()
-        
+# Посмотреть корзину 
     def look(self):
         self.btn_p.setEnabled(True)
         self.btn_m.setEnabled(True)
@@ -215,7 +217,7 @@ class Window1(QWidget):
         self.btn_find.setEnabled(False)
         self.btn_see.setEnabled(False)
 
-        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.db_o = sqlite3.connect(r'Order.db')
         self.cur_o = self.db_o.cursor()
 
         self.cur_o.execute("""BEGIN""")  
@@ -238,12 +240,12 @@ class Window1(QWidget):
         self.tableWidget.resizeColumnsToContents()
 
         self.db_o.close()
-
+# Увеличение на 1 по кнопке
     def plus(self):
-        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.db_o = sqlite3.connect(r'Order.db')
         self.cur_o = self.db_o.cursor()
 
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
         self.v_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
@@ -275,12 +277,12 @@ class Window1(QWidget):
         
         self.db.close()
         self.db_o.close()
-
+# Уменьшение на 1 в корзине по кнопке
     def minus(self):
-        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.db_o = sqlite3.connect(r'Order.db')
         self.cur_o = self.db_o.cursor()
 
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
         self.v_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
@@ -297,9 +299,9 @@ class Window1(QWidget):
 
         self.db.close()
         self.db_o.close()
-
+# Удаление из корзины
     def dell(self):
-        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.db_o = sqlite3.connect(r'Order.db')
         self.cur_o = self.db_o.cursor()
 
         self.d_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
@@ -308,15 +310,15 @@ class Window1(QWidget):
 
         self.db_o.close()
         self.look()
-        
+# Продажа товара, очистка корзины, изменение количества товара в БД   
     def sell(self):
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
-        self.db_o = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Order.db')
+        self.db_o = sqlite3.connect(r'Order.db')
         self.cur_o = self.db_o.cursor()
 
-        self.db_all = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\AllOrders.db')
+        self.db_all = sqlite3.connect(r'AllOrders.db')
         self.cur_all = self.db_all.cursor()
 
         self.cur_o.execute("""SELECT * FROM Orders""")
@@ -329,7 +331,7 @@ class Window1(QWidget):
         assert N == len(allrows)
 
         self.date = datetime.datetime.today()
-        self.data0 = self.date.strftime("%Y - %m - %d (%H : %M : %S)")
+        self.data0 = self.date.strftime("%d - %m - %Y (%H : %M : %S)")
 
         for i in range(N):
             self.cur.execute(f"""UPDATE NewProducts set count=count-{items[i][2]} WHERE id_prod={items[i][0]}""")
@@ -344,9 +346,9 @@ class Window1(QWidget):
         self.db.close()
         self.db_all.close()
         self.db_o.close()
-
+# Для показа всей таблицы
     def all(self):
-        self.db_all = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\AllOrders.db')
+        self.db_all = sqlite3.connect(r'AllOrders.db')
         self.cur_all = self.db_all.cursor()
 
         self.cur_all.execute("""BEGIN""")  
@@ -374,9 +376,9 @@ class Window2(QWidget):
         super(Window2, self).__init__()
         self.setWindowTitle('ИС для учета вычислительной техники и орг. техники')
 
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
-
+        # Создание таблицы с возможностью редактировать
         self.cur.execute("""BEGIN""")  
         N = self.cur.execute("""SELECT COUNT() FROM NewProducts""").fetchone()[0]
         allrows = self.cur.execute("""SELECT * FROM NewProducts""").fetchall()
@@ -395,7 +397,7 @@ class Window2(QWidget):
                 self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
                 if j == 2:
                     cat_id = items[i][2]
-                    self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+                    self.db_c = sqlite3.connect(r'Category.db')
                     self.cur_c = self.db_c.cursor()
                     self.cur_c.execute(f"""SELECT name FROM Category WHERE id_c={cat_id}""")
                     name_c = self.cur_c.fetchone()
@@ -476,7 +478,7 @@ class Window2(QWidget):
         self.db.close()
 
     def update(self):
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
         self.cur.execute("""BEGIN""")  
@@ -496,7 +498,7 @@ class Window2(QWidget):
                 self.tableWidget.setItem(i,j, QTableWidgetItem(str(items[i][j])))
                 if j == 2:
                     cat_id = items[i][2]
-                    self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+                    self.db_c = sqlite3.connect(r'Category.db')
                     self.cur_c = self.db_c.cursor()
                     self.cur_c.execute(f"""SELECT name FROM Category WHERE id_c={cat_id}""")
                     name_c = self.cur_c.fetchone()
@@ -507,10 +509,10 @@ class Window2(QWidget):
         self.db.close()
 
     def add(self):
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
-        self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+        self.db_c = sqlite3.connect(r'Category.db')
         self.cur_c = self.db_c.cursor()
 
         id_cat = self.cur_c.execute(f"""SELECT id_c FROM Category WHERE name='{self.e_category.text()}'""").fetchall()
@@ -537,7 +539,7 @@ class Window2(QWidget):
         self.update()
 
     def dl(self):
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
         self.value_id = self.tableWidget.model().data(self.tableWidget.currentIndex())
@@ -548,10 +550,10 @@ class Window2(QWidget):
         self.update()
 
     def rewrite(self):
-        self.db = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\NewProducts.db')
+        self.db = sqlite3.connect(r'NewProducts.db')
         self.cur = self.db.cursor()
 
-        self.db_c = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\Category.db')
+        self.db_c = sqlite3.connect(r'Category.db')
         self.cur_c = self.db_c.cursor()
 
         rows = self.tableWidget.rowCount()
@@ -581,7 +583,7 @@ class Window2(QWidget):
         self.update()
 
     def all(self):
-        self.db_all = sqlite3.connect(r'C:\Users\Dungeon Master\Desktop\DB_PyQt5\AllOrders.db')
+        self.db_all = sqlite3.connect(r'AllOrders.db')
         self.cur_all = self.db_all.cursor()
 
         self.cur_all.execute("""BEGIN""")  
