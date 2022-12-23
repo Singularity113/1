@@ -40,9 +40,6 @@ cur_all.execute("""CREATE TABLE AllOrders(
     cost INTEGER NOT NULL,
     date TEXT,
     FOREIGN KEY(id_prod) REFERENCES Orders(id_prod)
-    FOREIGN KEY(name) REFERENCES Orders(name)
-    FOREIGN KEY(count) REFERENCES Orders(count)
-    FOREIGN KEY(cost) REFERENCES Orders(cost)
 )""")
 db_all.commit()
 
@@ -67,7 +64,6 @@ cur_p.execute("""INSERT INTO NewProducts(name, id_c, count, cost) VALUES('Mercus
 cur_p.execute("""INSERT INTO NewProducts(name, id_c, count, cost) VALUES('FinePower Standard 518B-UPS черный [для ИБП, розетки - 5, 10 А, 2400 Вт, кабель - 1.8 м]',8,70,450)""")
 cur_p.execute("""INSERT INTO NewProducts(name, id_c, count, cost) VALUES('Power Cube SPG-B-0.5M-BLACK черный [розетки - 5, 10 А, 2200 Вт, кабель - 0.5 м]',8,25,500)""")
 db_prod.commit()
-
 
 cur_c.execute("""INSERT INTO Category(name) VALUES('ПК')""")
 cur_c.execute("""INSERT INTO Category(name) VALUES('Ноутбук')""")
